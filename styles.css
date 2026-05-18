@@ -1,0 +1,177 @@
+* {
+  margin: 0;
+  padding: 0;
+...
+  .card img {
+    height: 180px;
+  }
+}
+Tool Call
+Function Name:
+Write
+Arguments:
+file_path:
+/mnt/user-data/outputs/jaspion-separado/styles.css
+content:
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --cor-fundo: #000;
+  --cor-texto: #fff;
+  --cor-ciano: #00ffff;
+  --cor-ciano-escuro: #00aaff;
+  --cor-card: rgba(0, 0, 0, 0.75);
+  --cor-overlay: rgba(0, 0, 0, 0.75);
+  --cor-texto-secundario: #ccc;
+  --sombra-ciano: 0 0 20px cyan;
+  --raio: 20px;
+}
+
+body {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  overflow-x: hidden;
+  background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPjLVTM6mkdjoZlZppaxyXVEr-wDk4Ya1SD8C3LUmcA&s');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--cor-overlay);
+  z-index: -1;
+}
+
+.topo {
+  text-align: center;
+  padding: 20px;
+}
+
+.topo img {
+  width: 120px;
+  animation: flutuar 3s infinite ease-in-out;
+  filter: drop-shadow(0 0 20px cyan);
+}
+
+.topo h1 {
+  margin-top: 10px;
+  font-size: 28px;
+  color: var(--cor-ciano);
+  text-shadow: 0 0 15px cyan;
+}
+
+.player-box {
+  width: 100%;
+  padding: 20px;
+}
+
+video {
+  width: 100%;
+  border-radius: var(--raio);
+  border: 2px solid var(--cor-ciano);
+  box-shadow: 0 0 25px cyan;
+  background: #000;
+}
+
+.loading {
+  text-align: center;
+  padding: 30px;
+  font-size: 20px;
+  color: var(--cor-ciano);
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: var(--cor-card);
+  border: 2px solid var(--cor-ciano);
+  border-radius: var(--raio);
+  overflow: hidden;
+  box-shadow: var(--sombra-ciano);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 30px var(--cor-ciano);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.info {
+  padding: 15px;
+}
+
+.info h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: var(--cor-ciano);
+}
+
+.info p {
+  color: var(--cor-texto-secundario);
+  margin-bottom: 15px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--cor-ciano);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+button:hover {
+  background: var(--cor-ciano-escuro);
+  color: #fff;
+}
+
+@keyframes flutuar {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .topo h1 {
+    font-size: 22px;
+  }
+
+  .lista {
+    grid-template-columns: 1fr;
+  }
+
+  .card img {
+    height: 180px;
+  }
+}
+Response
+Created file /mnt/user-data/outputs/jaspion-separado/styles.css (2628 characters)
