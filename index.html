@@ -1,106 +1,49 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Player PRO</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <style>
-        body { margin:0; background:#0b0b0b; color:#fff; font-family:Arial; overflow-x: hidden; }
-        header { background:#111; padding:15px; text-align:center; font-size:22px; font-weight: bold; border-bottom: 2px solid #333; }
-        video { width:100%; height:250px; background:black; display: block; }
-        #busca { width:90%; margin:15px auto; display:block; padding:12px; border:none; border-radius:8px; font-size:16px; background: #222; color: #fff; }
-        #lista { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; padding:15px; }
-        .canal { background:#1c1c1c; padding:15px; border-radius:10px; text-align:center; cursor:pointer; transition:0.3s; font-size: 14px; border: 1px solid #333; }
-        .canal:hover { background:#0078ff; transform: scale(1.05); }
-        .erro { text-align: center; color: #ff4444; margin-top: 20px; }
-    </style>
-</head>
-<body>
-
-<header>📺 IPTV Player PRO</header>
-
-<video id="video" controls autoplay></video>
-
-<input type="text" id="busca" placeholder="Buscar canal...">
-
-<div id="lista">Carregando canais...</div>
-
-<script>
-    // Configurações
-    const urlLista = "https://api.allorigins.win/raw?url=http://newoneblue.site:80/player_api.php?username=Vanessa1234&password=Vanessa1234&type=m3u&output=m3u8";
-    const video = document.getElementById('video');
-    const listaDiv = document.getElementById("lista");
-
-    // PLAYER HLS
-    function play(url) {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = url;
-            video.addEventListener('loadedmetadata', () => video.play());
-        }
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-
-    // PARSER M3U (Melhorado)
-    function parseM3U(text) {
-        const linhas = text.split("\n");
-        let lista = [];
-        let nomeAtual = "";
-
-        for (let i = 0; i < linhas.length; i++) {
-            let linha = linhas[i].trim();
-            if (linha.startsWith("#EXTINF")) {
-                nomeAtual = linha.split(",")[1] || "Canal Sem Nome";
-            } else if (linha.startsWith("http")) {
-                lista.push({ nome: nomeAtual, url: linha });
-            }
-        }
-        return lista;
-    }
-
-    // RENDERIZAR NA TELA
-    function render(canais) {
-        listaDiv.innerHTML = "";
-        if (canais.length === 0) {
-            listaDiv.innerHTML = "<p class='erro'>Nenhum canal encontrado.</p>";
-            return;
-        }
-        canais.forEach(c => {
-            const div = document.createElement("div");
-            div.className = "canal";
-            div.innerText = c.nome;
-            div.onclick = () => play(c.url);
-            listaDiv.appendChild(div);
-        });
-    }
-
-    // BUSCA EM TEMPO REAL
-    document.getElementById("busca").addEventListener("input", e => {
-        const termo = e.target.value.toLowerCase();
-        const filtrados = window.allCanais.filter(c => c.nome.toLowerCase().includes(termo));
-        render(filtrados);
-    });
-
-    // CARREGAR DADOS
-    fetch(urlLista)
-        .then(res => {
-            if (!res.ok) throw new Error("Erro na rede");
-            return res.text();
-        })
-        .then(text => {
-            window.allCanais = parseM3U(text);
-            render(window.allCanais);
-        })
-        .catch(err => {
-            console.error(err);
-            listaDiv.innerHTML = "<p class='erro'>Erro ao carregar lista. Verifique o link ou o CORS.</p>";
-        });
-</script>
-
+...
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="script.js"></script>
 </body>
 </html>
+Tool Call
+Function Name:
+Write
+Arguments:
+file_path:
+/mnt/user-data/outputs/jaspion-separado/index.html
+content:
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jaspion Player Futurista</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <header class="topo">
+    <img
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmhGObVmhlxH9192A1fjgDZQFuCbNOZZEB08FniFy0LQ&s=10"
+      alt="Logo Jaspion"
+    />
+    <h1>JASPION PLAYER FUTURISTA</h1>
+  </header>
+
+  <main>
+    <section class="player-box">
+      <video id="player" controls autoplay playsinline></video>
+    </section>
+
+    <section class="loading" id="loading">CARREGANDO LISTA DROPBOX...</section>
+    <section class="lista" id="lista"></section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+Response
+Created file /mnt/user-data/outputs/jaspion-separado/index.html (894 characters)
