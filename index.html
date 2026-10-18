@@ -1,135 +1,523 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Jaspion Player Futurista</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{
-  background:#000;color:#fff;overflow-x:hidden;
-  background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPjLVTM6mkdjoZlZppaxyXVEr-wDk4Ya1SD8C3LUmcA&s');
-  background-size:cover;background-position:center;background-attachment:fixed
-}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:-1}
-.topo{text-align:center;padding:20px}
-.topo img{width:120px;animation:flutuar 3s infinite ease-in-out;filter:drop-shadow(0 0 20px cyan)}
-@keyframes flutuar{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
-h1{margin-top:10px;font-size:28px;color:#00ffff;text-shadow:0 0 15px cyan}
-.lista{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:20px}
-.card{
-  background:rgba(0,0,0,.75);border:2px solid cyan;border-radius:20px;overflow:hidden;
-  box-shadow:0 0 20px cyan;transition:.3s
-}
-.card:hover{transform:scale(1.03);box-shadow:0 0 30px #00ffff}
-.card img{width:100%;height:200px;object-fit:cover}
-.info{padding:15px}
-.info h2{font-size:20px;margin-bottom:10px;color:#00ffff}
-.info p{color:#ccc;margin-bottom:15px}
-button{
-  width:100%;padding:12px;border:none;border-radius:10px;background:cyan;color:#000;
-  font-weight:bold;cursor:pointer;transition:.3s
-}
-button:hover{background:#00aaff;color:#fff}
-.player-box{width:100%;padding:20px}
-video{
-  width:100%;border-radius:20px;border:2px solid cyan;box-shadow:0 0 25px cyan;background:#000
-}
-.loading{text-align:center;padding:30px;font-size:20px;color:cyan}
-</style>
-</head>
-<body>
-<div class="overlay"></div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplicativo TV Plus</title>
 
-<div class="topo">
-  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmhGObVmhlxH9192A1fjgDZQFuCbNOZZEB08FniFy0LQ&s=10" />
-  <h1>JASPION PLAYER FUTURISTA</h1>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-<div class="player-box">
-  <video id="player" controls autoplay playsinline></video>
-</div>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<div class="loading" id="loading">CARREGANDO LISTA DROPBOX...</div>
-<div class="lista" id="lista"></div>
+    body {
+      margin: 0;
+      background: #0e0e0e;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const LINK_PLAYLIST = "https://dl.dropbox.com/scl/fi/w3uj6wnegls53e3hte2mp/Jaspion.txt?rlkey=n9n8liwcmbyqkmc4xamlha97y&st=rsfikahe&dl=1";
+    header {
+      padding: 18px;
+      background: linear-gradient(135deg, #111827, #075985);
+      text-align: center;
+      box-shadow: 0 2px 10px #000;
+    }
 
-const lista = document.getElementById("lista");
-const player = document.getElementById("player");
-const loading = document.getElementById("loading");
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
 
-fetch(LINK_PLAYLIST)
-  .then(res => res.text())
-  .then(data => {
-    loading.style.display = "none";
-    const linhas = data.split('
-');
+    header p {
+      margin: 6px 0 0;
+      color: #dbeafe;
+    }
 
-    let logo = "";
-    let categoria = "";
-    let nome = "";
+    .container {
+      width: 95%;
+      max-width: 1300px;
+      margin: 20px auto;
+    }
 
-    for (let i = 0; i < linhas.length; i++) {
-      const linha = linhas[i].trim();
+    #testeBox {
+      padding: 14px;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      background: #172033;
+      border: 1px solid #2563eb;
+      text-align: center;
+    }
 
-      if (linha.startsWith("#EXTINF")) {
-        const logoMatch = linha.match(/tvg-logo="(.*?)"/);
-        const grupoMatch = linha.match(/group-title="(.*?)"/);
+    #contador {
+      color: #38bdf8;
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 8px;
+    }
 
-        logo = logoMatch ? logoMatch[1] : "";
-        categoria = grupoMatch ? grupoMatch[1] : "STREAM";
-        nome = linha.split(',').pop();
-      } else if (linha.startsWith("http")) {
-        criarCard(nome, logo, categoria, linha);
+    a {
+      color: #fff;
+    }
+
+    .botao {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .botao:hover {
+      background: #1d4ed8;
+    }
+
+    .painel {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      gap: 20px;
+    }
+
+    .player-area,
+    .lista-area {
+      background: #171717;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 10px #000;
+    }
+
+    video {
+      width: 100%;
+      max-height: 570px;
+      background: #000;
+      border-radius: 8px;
+    }
+
+    #tituloAtual {
+      margin: 12px 0 0;
+      color: #93c5fd;
+      font-size: 18px;
+    }
+
+    #busca {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #262626;
+      color: #fff;
+      outline: none;
+    }
+
+    #busca:focus {
+      border-color: #38bdf8;
+    }
+
+    #status {
+      color: #a3a3a3;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .categoria {
+      margin-bottom: 18px;
+    }
+
+    .categoria h3 {
+      margin: 0 0 8px;
+      padding-bottom: 6px;
+      color: #38bdf8;
+      border-bottom: 1px solid #333;
+      font-size: 16px;
+    }
+
+    .canal {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      text-align: left;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background: #242424;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .canal:hover {
+      background: #075985;
+      border-color: #38bdf8;
+    }
+
+    .canal small {
+      display: block;
+      margin-top: 4px;
+      color: #a3a3a3;
+    }
+
+    #bloqueio {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      padding: 80px 20px;
+      background: rgba(0, 0, 0, 0.97);
+      text-align: center;
+    }
+
+    #bloqueio h2 {
+      color: #f87171;
+      font-size: 28px;
+    }
+
+    #bloqueio p {
+      color: #d4d4d4;
+      font-size: 17px;
+    }
+
+    .erro {
+      padding: 15px;
+      color: #fecaca;
+      background: #450a0a;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 800px) {
+      .painel {
+        grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 22px;
       }
     }
-  })
-  .catch(() => {
-    loading.textContent = "ERRO AO CARREGAR LISTA DROPBOX";
-  });
+  </style>
+</head>
 
-function criarCard(nome, logo, categoria, url) {
-  const card = document.createElement("div");
-  card.className = "card";
+<body>
+  <header>
+    <h1>📺 Aplicativo TV Plus</h1>
+    <p> canais de televisão online</p>
+  </header>
 
-  card.innerHTML = `
-    <img src="${logo}" onerror="this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPjLVTM6mkdjoZlZppaxyXVEr-wDk4Ya1SD8C3LUmcA&s'">
-    <div class="info">
-      <h2>${nome || 'SEM NOME'}</h2>
-      <p>${categoria || 'STREAM'}</p>
-      <button onclick="tocar('${url.replace(/'/g, "\\'")}')">ASSISTIR</button>
+  <main class="container">
+    <div id="testeBox">
+      <strong>Período de teste:</strong>
+      <span id="contador">20:00</span>
+
+      <a
+        class="botao"
+        href="https://testeagora.tv/logtvseries"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Acessar teste
+      </a>
     </div>
-  `;
 
-  lista.appendChild(card);
-}
+    <div class="painel">
+      <section class="player-area">
+        <video id="video" controls playsinline></video>
+        <h2 id="tituloAtual">Selecione um canal</h2>
+      </section>
 
-function tocar(url) {
-  if (window.hlsInstance) {
-    window.hlsInstance.destroy();
-    window.hlsInstance = null;
-  }
+      <aside class="lista-area">
+        <input
+          type="search"
+          id="busca"
+          placeholder="Pesquisar canal..."
+          autocomplete="off"
+        >
 
-  if (url.includes(".m3u8")) {
-    if (Hls.isSupported()) {
-      window.hlsInstance = new Hls();
-      window.hlsInstance.loadSource(url);
-      window.hlsInstance.attachMedia(player);
-      window.hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => player.play());
-    } else {
-      player.src = url;
-      player.play();
+        <div id="status">Carregando canais...</div>
+        <div id="lista"></div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="bloqueio">
+    <h2>Período de teste encerrado</h2>
+    <p>Seu acesso de 20 minutos terminou.</p>
+
+    <a
+      class="botao"
+      href="https://testeagora.tv/logtvseries"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Renovar ou acessar o teste
+    </a>
+  </div>
+
+  <script>
+    const URL_M3U =
+      "https://iptv-org.github.io/iptv/countries/br.m3u";
+
+    const DURACAO_TESTE = 20 * 60 * 1000;
+    const CHAVE_INICIO_TESTE = "aplicativo_tv_plus_inicio_teste";
+
+    const video = document.getElementById("video");
+    const lista = document.getElementById("lista");
+    const busca = document.getElementById("busca");
+    const status = document.getElementById("status");
+    const contador = document.getElementById("contador");
+    const tituloAtual = document.getElementById("tituloAtual");
+
+    let canais = [];
+    let hls = null;
+    let intervaloTeste = null;
+
+    function iniciarTeste() {
+      let inicio = localStorage.getItem(CHAVE_INICIO_TESTE);
+
+      if (!inicio) {
+        inicio = Date.now();
+        localStorage.setItem(CHAVE_INICIO_TESTE, inicio);
+      }
+
+      atualizarContador();
+      intervaloTeste = setInterval(atualizarContador, 1000);
     }
-  } else {
-    player.src = url;
-    player.play();
-  }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-</script>
+    function atualizarContador() {
+      const inicio = Number(
+        localStorage.getItem(CHAVE_INICIO_TESTE)
+      );
+
+      const restante = DURACAO_TESTE - (Date.now() - inicio);
+
+      if (restante <= 0) {
+        bloquearAcesso();
+        return;
+      }
+
+      const totalSegundos = Math.floor(restante / 1000);
+      const minutos = Math.floor(totalSegundos / 60);
+      const segundos = totalSegundos % 60;
+
+      contador.textContent =
+        String(minutos).padStart(2, "0") + ":" +
+        String(segundos).padStart(2, "0");
+    }
+
+    function bloquearAcesso() {
+      clearInterval(intervaloTeste);
+
+      document.getElementById("testeBox").style.display = "none";
+      document.getElementById("bloqueio").style.display = "block";
+
+      busca.disabled = true;
+      lista.innerHTML = "";
+
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+      tituloAtual.textContent = "Acesso bloqueado";
+    }
+
+    function analisarLinhaInfo(linha) {
+      const dados = {};
+
+      const regex = /([a-zA-Z0-9_-]+)="([^"]*)"/g;
+      let resultado;
+
+      while ((resultado = regex.exec(linha)) !== null) {
+        dados[resultado[1]] = resultado[2];
+      }
+
+      return dados;
+    }
+
+    function analisarM3U(texto) {
+      const linhas = texto
+        .split(/\r?\n/)
+        .map(linha => linha.trim())
+        .filter(Boolean);
+
+      const resultado = [];
+
+      for (let i = 0; i < linhas.length; i++) {
+        if (!linhas[i].startsWith("#EXTINF")) {
+          continue;
+        }
+
+        const linhaInfo = linhas[i];
+        const dados = analisarLinhaInfo(linhaInfo);
+        const url = linhas[i + 1];
+
+        if (!url || url.startsWith("#")) {
+          continue;
+        }
+
+        const partes = linhaInfo.split(",");
+        const nome = partes.length > 1
+          ? partes.slice(1).join(",").trim()
+          : "Canal sem nome";
+
+        resultado.push({
+          nome: nome || "Canal sem nome",
+          grupo: dados["group-title"] || "Outros",
+          logo: dados["tvg-logo"] || "",
+          url: url
+        });
+
+        i++;
+      }
+
+      return resultado;
+    }
+
+    function escaparHTML(texto) {
+      return String(texto)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function mostrarCanais(filtro = "") {
+      lista.innerHTML = "";
+
+      const termo = filtro.toLowerCase().trim();
+
+      const filtrados = canais.filter(canal =>
+        canal.nome.toLowerCase().includes(termo) ||
+        canal.grupo.toLowerCase().includes(termo)
+      );
+
+      if (!filtrados.length) {
+        lista.innerHTML = "<p>Nenhum canal encontrado.</p>";
+        return;
+      }
+
+      const grupos = {};
+
+      filtrados.forEach(canal => {
+        if (!grupos[canal.grupo]) {
+          grupos[canal.grupo] = [];
+        }
+
+        grupos[canal.grupo].push(canal);
+      });
+
+      Object.keys(grupos)
+        .sort()
+        .forEach(grupo => {
+          const categoria = document.createElement("div");
+          categoria.className = "categoria";
+
+          const titulo = document.createElement("h3");
+          titulo.textContent =
+            grupo + " (" + grupos[grupo].length + ")";
+
+          categoria.appendChild(titulo);
+
+          grupos[grupo].forEach(canal => {
+            const botao = document.createElement("button");
+            botao.className = "canal";
+            botao.type = "button";
+
+            botao.innerHTML =
+              escaparHTML(canal.nome) +
+              "<small>" +
+              escaparHTML(canal.grupo) +
+              "</small>";
+
+            botao.addEventListener("click", () => reproduzir(canal));
+            categoria.appendChild(botao);
+          });
+
+          lista.appendChild(categoria);
+        });
+    }
+
+    function reproduzir(canal) {
+      tituloAtual.textContent = canal.nome;
+
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
+      if (
+        canal.url.includes(".m3u8") &&
+        Hls.isSupported()
+      ) {
+        hls = new Hls();
+
+        hls.loadSource(canal.url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(() => {});
+        });
+
+        hls.on(Hls.Events.ERROR, function(evento, dados) {
+          if (dados.fatal) {
+            tituloAtual.textContent =
+              "Erro ao carregar este canal.";
+          }
+        });
+      } else {
+        video.src = canal.url;
+
+        video.play().catch(() => {});
+      }
+    }
+
+    async function carregarLista() {
+      try {
+        status.textContent = "Baixando lista de canais...";
+
+        const resposta = await fetch(URL_M3U);
+
+        if (!resposta.ok) {
+          throw new Error("Não foi possível baixar a lista.");
+        }
+
+        const texto = await resposta.text();
+        canais = analisarM3U(texto);
+
+        status.textContent =
+          canais.length + " canais carregados.";
+
+        mostrarCanais();
+      } catch (erro) {
+        console.error(erro);
+
+        status.innerHTML =
+          '<div class="erro">' +
+          "Não foi possível carregar a lista M3U. " +
+          "Verifique a conexão ou as permissões de CORS." +
+          "</div>";
+      }
+    }
+
+    busca.addEventListener("input", () => {
+      mostrarCanais(busca.value);
+    });
+
+    iniciarTeste();
+    carregarLista();
+  </script>
 </body>
-</html>,
+</html>
+````
+
